@@ -1,8 +1,9 @@
 "use strict";
 
-import { h, mount, update } from './app';
 
-const view = date => h('div', 'hello world, now is ' + date );
+import patcher from './helpers';
+import h from 'snabbdom/h';
 
-mount( view(new Date()) , '#placeholder' );
-setInterval(() => update(view(new Date())), 1000 );
+const update = patcher('#placeholder');
+
+update( h('div', 'Hello World') );

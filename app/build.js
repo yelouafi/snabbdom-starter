@@ -4,6 +4,7 @@
 Object.defineProperty(exports, '__esModule', {
   value: true
 });
+exports['default'] = patch;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
@@ -11,55 +12,50 @@ var _snabbdom = require('snabbdom');
 
 var _snabbdom2 = _interopRequireDefault(_snabbdom);
 
+var defaultModules = [require('snabbdom/modules/class'), // makes it easy to toggle classes
+require('snabbdom/modules/props'), // for setting properties on DOM elements
+require('snabbdom/modules/style'), // handles styling on elements with support for animations
+require('snabbdom/modules/eventlisteners')];
+
+function domElm(selOrElm) {
+  var elm = selOrElm instanceof Element ? selOrElm : document.querySelector(selOrElm);
+
+  if (!elm) throw 'Argument must be either a DOM Element or a valid selector';
+  return elm;
+}
+
+function patch(selOrElm) {
+  var modules = arguments.length <= 1 || arguments[1] === undefined ? defaultModules : arguments[1];
+
+  var _patch = _snabbdom2['default'].init(modules);
+  var acc = domElm(selOrElm);
+
+  return function (vnode) {
+    acc = _patch(acc, vnode);
+  };
+}
+
+module.exports = exports['default'];
+// attaches event listeners
+
+},{"snabbdom":9,"snabbdom/modules/class":5,"snabbdom/modules/eventlisteners":6,"snabbdom/modules/props":7,"snabbdom/modules/style":8}],2:[function(require,module,exports){
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _helpers = require('./helpers');
+
+var _helpers2 = _interopRequireDefault(_helpers);
+
 var _snabbdomH = require('snabbdom/h');
 
 var _snabbdomH2 = _interopRequireDefault(_snabbdomH);
 
-var patch = _snabbdom2['default'].init([// Init patch function with choosen modules
-require('snabbdom/modules/class'), // makes it easy to toggle classes
-require('snabbdom/modules/props'), // for setting properties on DOM elements
-require('snabbdom/modules/style'), // handles styling on elements with support for animations
-require('snabbdom/modules/eventlisteners')]);
+var update = (0, _helpers2['default'])('#placeholder');
 
-var oldVnode = undefined;
+update((0, _snabbdomH2['default'])('div', 'Hello World'));
 
-function domElm(selOrElm) {
-  if (selOrElm instanceof Element) return selOrElm;
-  if (typeof selOrElm === 'string') {
-    var elm = document.querySelector(selOrElm);
-    if (!elm) throw 'Argument must be either a DOM Element or a valid selector';
-    return elm;
-  } else throw 'Argument must be either a DOM Element or a valid selector';
-}
-
-exports['default'] = {
-  h: _snabbdomH2['default'],
-  patch: patch,
-  mount: function mount(vnode, selOrElm) {
-    return oldVnode = patch(domElm(selOrElm), vnode);
-  },
-  update: function update(newVnode) {
-    return oldVnode = patch(oldVnode, newVnode);
-  }
-};
-module.exports = exports['default'];
-// attaches event listeners
-
-},{"snabbdom":9,"snabbdom/h":3,"snabbdom/modules/class":5,"snabbdom/modules/eventlisteners":6,"snabbdom/modules/props":7,"snabbdom/modules/style":8}],2:[function(require,module,exports){
-'use strict';
-
-var _app = require('./app');
-
-var view = function view(date) {
-  return (0, _app.h)('div', 'hello world, now is ' + date);
-};
-
-(0, _app.mount)(view(new Date()), '#placeholder');
-setInterval(function () {
-  return (0, _app.update)(view(new Date()));
-}, 1000);
-
-},{"./app":1}],3:[function(require,module,exports){
+},{"./helpers":1,"snabbdom/h":3}],3:[function(require,module,exports){
 var VNode = require('./vnode');
 var is = require('./is');
 
