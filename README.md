@@ -6,9 +6,22 @@ A simple snabbdom starter repository. Using the following tools:
 - babel to transpile the ES6 code
 - mocha for unit testing
 
+# Getting up and running
+
+Install
+
+1- clone the repository
+2- 'npm install'
+
+All files are live inside the `app` folder.
+
+Create the browser bundle
+
+- `npm run build` create 'build.js' (non minified) and 'build.min.js' (minified)
+
 # Hello world
 
-The kit provides a few helper functions. Below the hello example
+The kit provides a few helper functions. Below the hello example (file `app/js/main.js`)
 
 ````javascript
 
