@@ -1,0 +1,27 @@
+{
+  "name": "snabbdom-starter",
+  "version": "0.0.0",
+  "description": "Simple snabbdom starter repository",
+  "main": "nant2.js",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:yelouafi/snabbdom-starter.git"
+  },
+  "author": "Yassine Elouafi <yelouafi@gmail.com>",
+  "dependencies": {
+    "snabbdom": "^0.2.0"
+  },
+  "devDependencies": {
+    "browserify": "^11.0.0",
+    "babel": "^5.2.13",
+    "babelify": "^6.0.2",
+    "mocha": "^2.2.4",
+    "uglify-js": "^2.4.23"
+  },
+  "scripts": {
+    "test": "mocha --compilers js:babel/register",
+    "bundle": "browserify app/js/main.js -t babelify --outfile app/build.js",
+    "minify": "uglifyjs app/build.js > app/build.min.js",
+    "build": "npm run bundle && npm run minify"
+  }
+}
