@@ -10,8 +10,7 @@ A simple snabbdom starter repository. Using the following tools:
 
 Install
 
-1- clone the repository
-2- 'npm install'
+After cloning the repository, run `npm install`. 
 
 All files are live inside the `app` folder.
 
