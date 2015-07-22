@@ -7,14 +7,16 @@ var _snabbdom = require('snabbdom');
 
 var _snabbdom2 = _interopRequireDefault(_snabbdom);
 
-var h = require('snabbdom/h');
+var _snabbdomH = require('snabbdom/h');
+
+var _snabbdomH2 = _interopRequireDefault(_snabbdomH);
 
 var patch = _snabbdom2['default'].init([require('snabbdom/modules/class'), // makes it easy to toggle classes
 require('snabbdom/modules/props'), // for setting properties on DOM elements
 require('snabbdom/modules/style'), // handles styling on elements with support for animations
 require('snabbdom/modules/eventlisteners')]);
 
-var vnode = h('div', { style: { fontWeight: 'bold' } }, 'Hello world');
+var vnode = (0, _snabbdomH2['default'])('div', { style: { fontWeight: 'bold' } }, 'Hello world');
 patch(document.getElementById('placeholder'), vnode);
 // attaches event listeners
 
