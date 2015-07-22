@@ -27,7 +27,7 @@ If you want to manually build the bundle, run `npm run build`.
 
 ```javascript
 import snabbdom from 'snabbdom';
-var h = require('snabbdom/h');
+import h from 'snabbdom/h';
 
 const patch = snabbdom.init([
   require('snabbdom/modules/class'),          // makes it easy to toggle classes
