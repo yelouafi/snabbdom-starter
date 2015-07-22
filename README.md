@@ -21,17 +21,22 @@ All files live inside the `app` folder
 ........(...)  
 
 running `npm run watch` watches for change and creates the browser bundle 'build.js'
+If you want to manually build the bundle, run `npm run build`.
 
 # Hello world
 
-The kit provides a few helper functions. Below the hello example (file `app/js/main.js`)
+```javascript
+import snabbdom from 'snabbdom';
+var h = require('snabbdom/h');
 
-````javascript
-import patcher from './helpers';
-import h from 'snabbdom/h';
+const patch = snabbdom.init([
+  require('snabbdom/modules/class'),          // makes it easy to toggle classes
+  require('snabbdom/modules/props'),          // for setting properties on DOM elements
+  require('snabbdom/modules/style'),          // handles styling on elements with support for animations
+  require('snabbdom/modules/eventlisteners'), // attaches event listeners
+]);
 
-const update = patcher('#placeholder');
 
-update( h('div', 'Hello World') );
+var vnode = h('div', {style: {fontWeight: 'bold'}}, 'Hello world');
+patch(document.getElementById('placeholder'), vnode);
 ```
-

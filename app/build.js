@@ -1,61 +1,24 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-exports['default'] = patch;
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _snabbdom = require('snabbdom');
 
 var _snabbdom2 = _interopRequireDefault(_snabbdom);
 
-var defaultModules = [require('snabbdom/modules/class'), // makes it easy to toggle classes
+var h = require('snabbdom/h');
+
+var patch = _snabbdom2['default'].init([require('snabbdom/modules/class'), // makes it easy to toggle classes
 require('snabbdom/modules/props'), // for setting properties on DOM elements
 require('snabbdom/modules/style'), // handles styling on elements with support for animations
-require('snabbdom/modules/eventlisteners')];
+require('snabbdom/modules/eventlisteners')]);
 
-function domElm(selOrElm) {
-  var elm = selOrElm instanceof Element ? selOrElm : document.querySelector(selOrElm);
-
-  if (!elm) throw 'Argument must be either a DOM Element or a valid selector';
-  return elm;
-}
-
-function patch(selOrElm) {
-  var modules = arguments.length <= 1 || arguments[1] === undefined ? defaultModules : arguments[1];
-
-  var _patch = _snabbdom2['default'].init(modules);
-  var acc = domElm(selOrElm);
-
-  return function (vnode) {
-    acc = _patch(acc, vnode);
-  };
-}
-
-module.exports = exports['default'];
+var vnode = h('div', { style: { fontWeight: 'bold' } }, 'Hello world');
+patch(document.getElementById('placeholder'), vnode);
 // attaches event listeners
 
-},{"snabbdom":9,"snabbdom/modules/class":5,"snabbdom/modules/eventlisteners":6,"snabbdom/modules/props":7,"snabbdom/modules/style":8}],2:[function(require,module,exports){
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _helpers = require('./helpers');
-
-var _helpers2 = _interopRequireDefault(_helpers);
-
-var _snabbdomH = require('snabbdom/h');
-
-var _snabbdomH2 = _interopRequireDefault(_snabbdomH);
-
-var update = (0, _helpers2['default'])('#placeholder');
-
-update((0, _snabbdomH2['default'])('div', 'Hello World'));
-
-},{"./helpers":1,"snabbdom/h":3}],3:[function(require,module,exports){
+},{"snabbdom":8,"snabbdom/h":2,"snabbdom/modules/class":4,"snabbdom/modules/eventlisteners":5,"snabbdom/modules/props":6,"snabbdom/modules/style":7}],2:[function(require,module,exports){
 var VNode = require('./vnode');
 var is = require('./is');
 
@@ -78,13 +41,13 @@ module.exports = function h(sel, b, c) {
   return VNode(sel, data, children, text, undefined);
 };
 
-},{"./is":4,"./vnode":10}],4:[function(require,module,exports){
+},{"./is":3,"./vnode":9}],3:[function(require,module,exports){
 module.exports = {
   array: Array.isArray,
   primitive: function(s) { return typeof s === 'string' || typeof s === 'number'; },
 };
 
-},{}],5:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 function updateClass(oldVnode, vnode) {
   var cur, name, elm = vnode.elm,
       oldClass = oldVnode.data.class || {},
@@ -99,7 +62,7 @@ function updateClass(oldVnode, vnode) {
 
 module.exports = {create: updateClass, update: updateClass};
 
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var is = require('../is');
 
 function arrInvoker(arr) {
@@ -138,7 +101,7 @@ function updateEventListeners(oldVnode, vnode) {
 
 module.exports = {create: updateEventListeners, update: updateEventListeners};
 
-},{"../is":4}],7:[function(require,module,exports){
+},{"../is":3}],6:[function(require,module,exports){
 function updateProps(oldVnode, vnode) {
   var key, cur, old, elm = vnode.elm,
       oldProps = oldVnode.data.props || {}, props = vnode.data.props || {};
@@ -153,7 +116,7 @@ function updateProps(oldVnode, vnode) {
 
 module.exports = {create: updateProps, update: updateProps};
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var raf = requestAnimationFrame || setTimeout;
 var nextFrame = function(fn) { raf(function() { raf(fn); }); };
 
@@ -214,7 +177,7 @@ function applyRemoveStyle(vnode, rm) {
 
 module.exports = {create: updateStyle, update: updateStyle, destroy: applyDestroyStyle, remove: applyRemoveStyle};
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 // jshint newcap: false
 /* global require, module, document, Element */
 'use strict';
@@ -453,11 +416,11 @@ function init(modules) {
 
 module.exports = {init: init};
 
-},{"./is":4,"./vnode":10}],10:[function(require,module,exports){
+},{"./is":3,"./vnode":9}],9:[function(require,module,exports){
 module.exports = function(sel, data, children, text, elm) {
   var key = data === undefined ? undefined : data.key;
   return {sel: sel, data: data, children: children,
           text: text, elm: elm, key: key};
 };
 
-},{}]},{},[2]);
+},{}]},{},[1]);
