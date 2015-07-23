@@ -11,7 +11,25 @@ const patch = snabbdom.init([
 ]);
 
 
-var vnode = h('div', {style: {fontWeight: 'bold'}}, 'Hello world');
-patch(document.getElementById('placeholder'), vnode);
+function view(name) { 
+  return h('div', [
+    h('input', {
+      props: { type: 'text', placeholder: 'Type a your name' },
+      on   : { input: onInput }
+    }),
+    h('hr'),
+    h('div', 'Hello ' + name)
+  ]); 
+}
 
+function onInput(event) {
+  const newVnode = view(event.target.value);
+  updateDOM(newVnode);  
+}
 
+var oldVnode = document.getElementById('placeholder');
+function updateDOM(newVnode) {
+  oldVnode = patch(oldVnode, newVnode);
+}
+
+updateDOM(view(''));
