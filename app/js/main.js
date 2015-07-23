@@ -11,7 +11,17 @@ const patch = snabbdom.init([
 ]);
 
 
-var vnode = h('div', {style: {fontWeight: 'bold'}}, 'Hello world');
-patch(document.getElementById('placeholder'), vnode);
+function view(currentDate) { 
+  return h('div', 'Current date ' + currentDate); 
+}
 
+var oldVnode = document.getElementById('placeholder');
+function updateDOM(newVnode) {
+  oldVnode = patch(oldVnode, newVnode);
+}
+
+setInterval( () => {
+  const newVnode = view(new Date());
+  updateDOM(newVnode);  
+}, 1000);
 

@@ -16,8 +16,19 @@ require('snabbdom/modules/props'), // for setting properties on DOM elements
 require('snabbdom/modules/style'), // handles styling on elements with support for animations
 require('snabbdom/modules/eventlisteners')]);
 
-var vnode = (0, _snabbdomH2['default'])('div', { style: { fontWeight: 'bold' } }, 'Hello world');
-patch(document.getElementById('placeholder'), vnode);
+function view(currentDate) {
+  return (0, _snabbdomH2['default'])('div', 'Current date ' + currentDate);
+}
+
+var oldVnode = document.getElementById('placeholder');
+function updateDOM(newVnode) {
+  oldVnode = patch(oldVnode, newVnode);
+}
+
+setInterval(function () {
+  var newVnode = view(new Date());
+  updateDOM(newVnode);
+}, 1000);
 // attaches event listeners
 
 },{"snabbdom":8,"snabbdom/h":2,"snabbdom/modules/class":4,"snabbdom/modules/eventlisteners":5,"snabbdom/modules/props":6,"snabbdom/modules/style":7}],2:[function(require,module,exports){
