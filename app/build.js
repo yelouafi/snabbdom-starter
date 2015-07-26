@@ -23,17 +23,14 @@ function view(name) {
   }), (0, _snabbdomH2['default'])('hr'), (0, _snabbdomH2['default'])('div', 'Hello ' + name)]);
 }
 
+var oldVnode = document.getElementById('placeholder');
+
 function onInput(event) {
   var newVnode = view(event.target.value);
-  updateDOM(newVnode);
-}
-
-var oldVnode = document.getElementById('placeholder');
-function updateDOM(newVnode) {
   oldVnode = patch(oldVnode, newVnode);
 }
 
-updateDOM(view(''));
+oldVnode = patch(oldVnode, view(''));
 // attaches event listeners
 
 },{"snabbdom":8,"snabbdom/h":2,"snabbdom/modules/class":4,"snabbdom/modules/eventlisteners":5,"snabbdom/modules/props":6,"snabbdom/modules/style":7}],2:[function(require,module,exports){

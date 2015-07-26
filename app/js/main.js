@@ -22,14 +22,12 @@ function view(name) {
   ]); 
 }
 
+var oldVnode = document.getElementById('placeholder');
+
 function onInput(event) {
   const newVnode = view(event.target.value);
-  updateDOM(newVnode);  
-}
-
-var oldVnode = document.getElementById('placeholder');
-function updateDOM(newVnode) {
   oldVnode = patch(oldVnode, newVnode);
 }
 
-updateDOM(view(''));
+
+oldVnode = patch(oldVnode, view(''));
