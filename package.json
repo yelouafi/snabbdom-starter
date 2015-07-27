@@ -18,7 +18,7 @@
     "watchify": "^3.3.0"
   },
   "scripts": {
-    "build": "browserify app/js/main.js -t babelify --outfile app/build.js",
+    "build": "browserify app/js/main.js -t [ babelify --stage 1 ] --outfile app/build.js",
     "watch": "watchify app/js/main.js -t babelify --outfile app/build.js"
   }
 }

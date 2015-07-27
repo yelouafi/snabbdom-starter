@@ -7,7 +7,7 @@ A simple snabbdom starter repository. Using the following tools:
 
 # Getting up and running
 
-Install
+##Install
 
 After cloning the repository, run `npm install`. 
 
@@ -23,20 +23,13 @@ All files live inside the `app` folder
 running `npm run watch` watches for change and creates the browser bundle 'build.js'
 If you want to manually build the bundle, run `npm run build`.
 
-# Hello world
+##Examples
 
-```javascript
-import snabbdom from 'snabbdom';
-import h from 'snabbdom/h';
+The repository contains multiple branches with different examples
 
-const patch = snabbdom.init([
-  require('snabbdom/modules/class'),          // makes it easy to toggle classes
-  require('snabbdom/modules/props'),          // for setting properties on DOM elements
-  require('snabbdom/modules/style'),          // handles styling on elements with support for animations
-  require('snabbdom/modules/eventlisteners'), // attaches event listeners
-]);
-
-
-var vnode = h('div', {style: {fontWeight: 'bold'}}, 'Hello world');
-patch(document.getElementById('placeholder'), vnode);
-```
+- [master](https://github.com/yelouafi/snabbdom-starter) : the basic Hello examples
+- [dynamic-view](https://github.com/yelouafi/snabbdom-starter/tree/dynamic-view): dynamically generated view (using `setInterval`)
+- [event-reactivity](https://github.com/yelouafi/snabbdom-starter/tree/event-reactivity) : basic event handling example
+- [counter-1](https://github.com/yelouafi/snabbdom-starter/tree/counter-1) basic counter (Elm architecture)
+- [counter-2](https://github.com/yelouafi/snabbdom-starter/tree/counter-2) a pair of counters (Elm architecture)
+- [counter-3](https://github.com/yelouafi/snabbdom-starter/tree/counter-3) a list of counters (Elm architecture)
