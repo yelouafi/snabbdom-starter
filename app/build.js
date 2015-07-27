@@ -73,7 +73,7 @@ function view(model, handler) {
 }
 
 function counterItemView(item, handler) {
-  return (0, _snabbdomH2['default'])('div.counter-item', [(0, _snabbdomH2['default'])('button.remove', {
+  return (0, _snabbdomH2['default'])('div.counter-item', { key: item.id }, [(0, _snabbdomH2['default'])('button.remove', {
     on: { click: function click(e) {
         return handler({ type: REMOVE, id: item.id });
       } }
