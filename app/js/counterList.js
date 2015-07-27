@@ -28,7 +28,7 @@ function view(model, handler) {
 }
 
 function counterItemView(item, handler) {
-  return h('div.counter-item', [
+  return h('div.counter-item', { key: item.id }, [
     h('button.remove', {
       on : { click: e => handler({ type: REMOVE, id: item.id})  }
     }, 'Remove'),
