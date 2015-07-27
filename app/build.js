@@ -13,24 +13,25 @@ var _snabbdomH2 = _interopRequireDefault(_snabbdomH);
 
 var INC = Symbol('inc');
 var DEC = Symbol('dec');
+var INIT = Symbol('init');
 
 // model : Number
 function view(count, handler) {
   return (0, _snabbdomH2['default'])('div', [(0, _snabbdomH2['default'])('button', {
-    on: { click: handler.bind(null, INC) }
+    on: { click: handler.bind(null, { type: INC }) }
   }, '+'), (0, _snabbdomH2['default'])('button', {
-    on: { click: handler.bind(null, DEC) }
+    on: { click: handler.bind(null, { type: DEC }) }
   }, '-'), (0, _snabbdomH2['default'])('div', 'Count : ' + count)]);
 }
 
 function update(count, action) {
-  return action === INC ? count + 1 : action === DEC ? count - 1 : count;
+  return action.type === INC ? count + 1 : action.type === DEC ? count - 1 : action.type === INIT ? action.data : count;
 }
 
-exports['default'] = { view: view, update: update };
+exports['default'] = { view: view, update: update, actions: { INC: INC, DEC: DEC, INIT: INIT } };
 module.exports = exports['default'];
 
-},{"snabbdom/h":3}],2:[function(require,module,exports){
+},{"snabbdom/h":4}],2:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -39,9 +40,9 @@ var _snabbdom = require('snabbdom');
 
 var _snabbdom2 = _interopRequireDefault(_snabbdom);
 
-var _counter = require('./counter');
+var _twoCounters = require('./twoCounters');
 
-var _counter2 = _interopRequireDefault(_counter);
+var _twoCounters2 = _interopRequireDefault(_twoCounters);
 
 var patch = _snabbdom2['default'].init([require('snabbdom/modules/class'), // makes it easy to toggle classes
 require('snabbdom/modules/props'), // for setting properties on DOM elements
@@ -59,11 +60,57 @@ function main(initState, oldVnode, _ref) {
   patch(oldVnode, newVnode);
 }
 
-main(0, // the initial state
-document.getElementById('placeholder'), _counter2['default']);
+main({ first: 0, second: 0 }, // the initial state
+document.getElementById('placeholder'), _twoCounters2['default']);
 // attaches event listeners
 
-},{"./counter":1,"snabbdom":9,"snabbdom/modules/class":5,"snabbdom/modules/eventlisteners":6,"snabbdom/modules/props":7,"snabbdom/modules/style":8}],3:[function(require,module,exports){
+},{"./twoCounters":3,"snabbdom":10,"snabbdom/modules/class":6,"snabbdom/modules/eventlisteners":7,"snabbdom/modules/props":8,"snabbdom/modules/style":9}],3:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _snabbdomH = require('snabbdom/h');
+
+var _snabbdomH2 = _interopRequireDefault(_snabbdomH);
+
+var _counter = require('./counter');
+
+var _counter2 = _interopRequireDefault(_counter);
+
+var FIRST_ACTION = Symbol('first');
+var SECOND_ACTION = Symbol('second');
+var RESET = Symbol('reset');
+
+// model : {first: counter.model, second: counter.model }
+function view(model, handler) {
+  return (0, _snabbdomH2['default'])('div', [(0, _snabbdomH2['default'])('button', {
+    on: { click: handler.bind(null, { type: RESET }) }
+  }, 'Reset'), _counter2['default'].view(model.first, function (a) {
+    return handler({ type: FIRST_ACTION, data: a });
+  }), _counter2['default'].view(model.second, function (a) {
+    return handler({ type: SECOND_ACTION, data: a });
+  })]);
+}
+
+var resetAction = { type: _counter2['default'].actions.INIT, data: 0 };
+
+function update(model, action) {
+  return action.type === RESET ? {
+    first: _counter2['default'].update(model.first, resetAction),
+    second: _counter2['default'].update(model.second, resetAction)
+  } : action.type === FIRST_ACTION ? _extends({}, model, { first: _counter2['default'].update(model.first, action.data) }) : action.type === SECOND_ACTION ? _extends({}, model, { second: _counter2['default'].update(model.second, action.data) }) : model;
+}
+
+exports['default'] = { view: view, update: update, actions: { FIRST_ACTION: FIRST_ACTION, SECOND_ACTION: SECOND_ACTION, RESET: RESET } };
+module.exports = exports['default'];
+
+},{"./counter":1,"snabbdom/h":4}],4:[function(require,module,exports){
 var VNode = require('./vnode');
 var is = require('./is');
 
@@ -86,13 +133,13 @@ module.exports = function h(sel, b, c) {
   return VNode(sel, data, children, text, undefined);
 };
 
-},{"./is":4,"./vnode":10}],4:[function(require,module,exports){
+},{"./is":5,"./vnode":11}],5:[function(require,module,exports){
 module.exports = {
   array: Array.isArray,
   primitive: function(s) { return typeof s === 'string' || typeof s === 'number'; },
 };
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 function updateClass(oldVnode, vnode) {
   var cur, name, elm = vnode.elm,
       oldClass = oldVnode.data.class || {},
@@ -107,7 +154,7 @@ function updateClass(oldVnode, vnode) {
 
 module.exports = {create: updateClass, update: updateClass};
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var is = require('../is');
 
 function arrInvoker(arr) {
@@ -146,7 +193,7 @@ function updateEventListeners(oldVnode, vnode) {
 
 module.exports = {create: updateEventListeners, update: updateEventListeners};
 
-},{"../is":4}],7:[function(require,module,exports){
+},{"../is":5}],8:[function(require,module,exports){
 function updateProps(oldVnode, vnode) {
   var key, cur, old, elm = vnode.elm,
       oldProps = oldVnode.data.props || {}, props = vnode.data.props || {};
@@ -161,7 +208,7 @@ function updateProps(oldVnode, vnode) {
 
 module.exports = {create: updateProps, update: updateProps};
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var raf = requestAnimationFrame || setTimeout;
 var nextFrame = function(fn) { raf(function() { raf(fn); }); };
 
@@ -222,7 +269,7 @@ function applyRemoveStyle(vnode, rm) {
 
 module.exports = {create: updateStyle, update: updateStyle, destroy: applyDestroyStyle, remove: applyRemoveStyle};
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 // jshint newcap: false
 /* global require, module, document, Element */
 'use strict';
@@ -461,7 +508,7 @@ function init(modules) {
 
 module.exports = {init: init};
 
-},{"./is":4,"./vnode":10}],10:[function(require,module,exports){
+},{"./is":5,"./vnode":11}],11:[function(require,module,exports){
 module.exports = function(sel, data, children, text, elm) {
   var key = data === undefined ? undefined : data.key;
   return {sel: sel, data: data, children: children,
