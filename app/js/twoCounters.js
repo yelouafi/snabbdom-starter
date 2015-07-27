@@ -13,8 +13,9 @@ function view(model, handler) {
     h('button', {
       on   : { click: handler.bind(null, {type: RESET}) }
     }, 'Reset'),
-    
+    h('hr'),
     counter.view(model.first, a => handler({ type: FIRST_ACTION, data: a})),
+    h('hr'),
     counter.view(model.second, a => handler({ type: SECOND_ACTION, data: a})),
     
   ]); 

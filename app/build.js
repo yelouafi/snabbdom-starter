@@ -91,9 +91,9 @@ var RESET = Symbol('reset');
 function view(model, handler) {
   return (0, _snabbdomH2['default'])('div', [(0, _snabbdomH2['default'])('button', {
     on: { click: handler.bind(null, { type: RESET }) }
-  }, 'Reset'), _counter2['default'].view(model.first, function (a) {
+  }, 'Reset'), (0, _snabbdomH2['default'])('hr'), _counter2['default'].view(model.first, function (a) {
     return handler({ type: FIRST_ACTION, data: a });
-  }), _counter2['default'].view(model.second, function (a) {
+  }), (0, _snabbdomH2['default'])('hr'), _counter2['default'].view(model.second, function (a) {
     return handler({ type: SECOND_ACTION, data: a });
   })]);
 }
