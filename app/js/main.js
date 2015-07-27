@@ -1,7 +1,7 @@
 "use strict";
 
 import snabbdom from 'snabbdom';
-import h from 'snabbdom/h';
+import counter from './counter';
 
 const patch = snabbdom.init([
   require('snabbdom/modules/class'),          // makes it easy to toggle classes
@@ -11,23 +11,18 @@ const patch = snabbdom.init([
 ]);
 
 
-function view(name) { 
-  return h('div', [
-    h('input', {
-      props: { type: 'text', placeholder: 'Type a your name' },
-      on   : { input: onInput }
-    }),
-    h('hr'),
-    h('div', 'Hello ' + name)
-  ]); 
+
+
+function main(initState, oldVnode, {view, update}) {
+  const newVnode = view(initState, e => {
+    const newState = update(initState, e);
+    main(newState, newVnode, {view, update});
+  });
+  patch(oldVnode, newVnode);
 }
 
-var oldVnode = document.getElementById('placeholder');
-
-function onInput(event) {
-  const newVnode = view(event.target.value);
-  oldVnode = patch(oldVnode, newVnode);
-}
-
-
-oldVnode = patch(oldVnode, view(''));
+main(
+  0, // the initial state 
+  document.getElementById('placeholder'), 
+  counter
+);
