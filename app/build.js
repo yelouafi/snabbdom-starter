@@ -34,15 +34,94 @@ module.exports = exports['default'];
 },{"snabbdom/h":4}],2:[function(require,module,exports){
 'use strict';
 
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
+
+var _snabbdomH = require('snabbdom/h');
+
+var _snabbdomH2 = _interopRequireDefault(_snabbdomH);
+
+var _counter = require('./counter');
+
+var _counter2 = _interopRequireDefault(_counter);
+
+var ADD = Symbol('add');
+var COUNTER_ACTION = Symbol('counter action');
+var REMOVE = Symbol('remove');
+var RESET = Symbol('reset');
+
+/*  model : {
+      counters: [{id: Number, counter: counter.model}],
+      nextID  : Number
+    }
+*/
+function view(model, handler) {
+  return (0, _snabbdomH2['default'])('div', [(0, _snabbdomH2['default'])('button', {
+    on: { click: handler.bind(null, { type: ADD }) }
+  }, 'Add'), (0, _snabbdomH2['default'])('button', {
+    on: { click: handler.bind(null, { type: RESET }) }
+  }, 'Reset'), (0, _snabbdomH2['default'])('hr'), (0, _snabbdomH2['default'])('div.counter-list', model.counters.map(function (item) {
+    return counterItemView(item, handler);
+  }))]);
+}
+
+function counterItemView(item, handler) {
+  return (0, _snabbdomH2['default'])('div.counter-item', [(0, _snabbdomH2['default'])('button.remove', {
+    on: { click: function click(e) {
+        return handler({ type: REMOVE, id: item.id });
+      } }
+  }, 'Remove'), _counter2['default'].view(item.counter, function (a) {
+    return handler({ type: COUNTER_ACTION, id: item.id, data: a });
+  }), (0, _snabbdomH2['default'])('hr')]);
+}
+
+var resetAction = { type: _counter2['default'].actions.INIT, data: 0 };
+
+function addCounter(id) {
+  return { id: id, counter: _counter2['default'].update(null, resetAction) };
+}
+
+function update(model, action) {
+
+  return action.type === ADD ? { counters: [].concat(_toConsumableArray(model.counters), [addCounter(model.nextID)]),
+    nextID: model.nextID + 1
+  } : action.type === RESET ? _extends({}, model, {
+    counters: model.counters.map(function (item) {
+      return _extends({}, item, { counter: _counter2['default'].update(item.counter, resetAction) });
+    })
+  }) : action.type === REMOVE ? _extends({}, model, {
+    counters: model.counters.filter(function (item) {
+      return item.id !== action.id;
+    })
+  }) : action.type === COUNTER_ACTION ? _extends({}, model, {
+    counters: model.counters.map(function (item) {
+      return item.id !== action.id ? item : _extends({}, item, { counter: _counter2['default'].update(item.counter, action.data) });
+    })
+  }) : model;
+}
+
+exports['default'] = { view: view, update: update, actions: { ADD: ADD, RESET: RESET, REMOVE: REMOVE, COUNTER_ACTION: COUNTER_ACTION } };
+module.exports = exports['default'];
+
+},{"./counter":1,"snabbdom/h":4}],3:[function(require,module,exports){
+'use strict';
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _snabbdom = require('snabbdom');
 
 var _snabbdom2 = _interopRequireDefault(_snabbdom);
 
-var _twoCounters = require('./twoCounters');
+var _counterList = require('./counterList');
 
-var _twoCounters2 = _interopRequireDefault(_twoCounters);
+var _counterList2 = _interopRequireDefault(_counterList);
 
 var patch = _snabbdom2['default'].init([require('snabbdom/modules/class'), // makes it easy to toggle classes
 require('snabbdom/modules/props'), // for setting properties on DOM elements
@@ -60,57 +139,11 @@ function main(initState, oldVnode, _ref) {
   patch(oldVnode, newVnode);
 }
 
-main({ first: 0, second: 0 }, // the initial state
-document.getElementById('placeholder'), _twoCounters2['default']);
+main({ nextID: 1, counters: [] }, // the initial state
+document.getElementById('placeholder'), _counterList2['default']);
 // attaches event listeners
 
-},{"./twoCounters":3,"snabbdom":10,"snabbdom/modules/class":6,"snabbdom/modules/eventlisteners":7,"snabbdom/modules/props":8,"snabbdom/modules/style":9}],3:[function(require,module,exports){
-'use strict';
-
-Object.defineProperty(exports, '__esModule', {
-  value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _snabbdomH = require('snabbdom/h');
-
-var _snabbdomH2 = _interopRequireDefault(_snabbdomH);
-
-var _counter = require('./counter');
-
-var _counter2 = _interopRequireDefault(_counter);
-
-var FIRST_ACTION = Symbol('first');
-var SECOND_ACTION = Symbol('second');
-var RESET = Symbol('reset');
-
-// model : {first: counter.model, second: counter.model }
-function view(model, handler) {
-  return (0, _snabbdomH2['default'])('div', [(0, _snabbdomH2['default'])('button', {
-    on: { click: handler.bind(null, { type: RESET }) }
-  }, 'Reset'), _counter2['default'].view(model.first, function (a) {
-    return handler({ type: FIRST_ACTION, data: a });
-  }), _counter2['default'].view(model.second, function (a) {
-    return handler({ type: SECOND_ACTION, data: a });
-  })]);
-}
-
-var resetAction = { type: _counter2['default'].actions.INIT, data: 0 };
-
-function update(model, action) {
-  return action.type === RESET ? {
-    first: _counter2['default'].update(model.first, resetAction),
-    second: _counter2['default'].update(model.second, resetAction)
-  } : action.type === FIRST_ACTION ? _extends({}, model, { first: _counter2['default'].update(model.first, action.data) }) : action.type === SECOND_ACTION ? _extends({}, model, { second: _counter2['default'].update(model.second, action.data) }) : model;
-}
-
-exports['default'] = { view: view, update: update, actions: { FIRST_ACTION: FIRST_ACTION, SECOND_ACTION: SECOND_ACTION, RESET: RESET } };
-module.exports = exports['default'];
-
-},{"./counter":1,"snabbdom/h":4}],4:[function(require,module,exports){
+},{"./counterList":2,"snabbdom":10,"snabbdom/modules/class":6,"snabbdom/modules/eventlisteners":7,"snabbdom/modules/props":8,"snabbdom/modules/style":9}],4:[function(require,module,exports){
 var VNode = require('./vnode');
 var is = require('./is');
 
@@ -515,4 +548,4 @@ module.exports = function(sel, data, children, text, elm) {
           text: text, elm: elm, key: key};
 };
 
-},{}]},{},[2]);
+},{}]},{},[3]);

@@ -1,7 +1,7 @@
 "use strict";
 
 import snabbdom from 'snabbdom';
-import twoCounters from './twoCounters';
+import counterList from './counterList';
 
 const patch = snabbdom.init([
   require('snabbdom/modules/class'),          // makes it easy to toggle classes
@@ -22,7 +22,7 @@ function main(initState, oldVnode, {view, update}) {
 }
 
 main(
-  {first: 0, second: 0}, // the initial state 
+  { nextID: 1, counters: [] }, // the initial state 
   document.getElementById('placeholder'), 
-  twoCounters
+  counterList
 );

@@ -2,9 +2,9 @@
 
 import h from 'snabbdom/h';
 
-const INC     = Symbol('inc');
-const DEC     = Symbol('dec');
-const INIT   = Symbol('init');
+const INC       = Symbol('inc');
+const DEC       = Symbol('dec');
+const INIT      = Symbol('init');
 
 
 // model : Number
