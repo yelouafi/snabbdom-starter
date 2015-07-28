@@ -1,20 +1,23 @@
 "use strict";
 
 import h from 'snabbdom/h';
+import Type from 'union-type';
 
-const INC       = Symbol('inc');
-const DEC       = Symbol('dec');
-const INIT      = Symbol('init');
+const Action = Type({
+  Increment : [],
+  Decrement : [],
+  Init      : [Number],
+});
 
 
 // model : Number
 function view(count, handler) { 
   return h('div', [
     h('button', {
-      on   : { click: handler.bind(null, { type: INC }) }
+      on   : { click: handler.bind(null, Action.Increment()) }
     }, '+'),
     h('button', {
-      on   : { click: handler.bind(null, { type: DEC }) }
+      on   : { click: handler.bind(null, Action.Decrement()) }
     }, '-'),
     h('div', `Count : ${count}`),
   ]); 
@@ -22,10 +25,11 @@ function view(count, handler) {
 
 
 function update(count, action) {
-  return  action.type === INC    ? count + 1
-        : action.type === DEC    ? count - 1
-        : action.type === INIT  ? action.data
-        : count;
+  return  Action.case({
+    Increment : () => count + 1,
+    Decrement : () => count - 1,
+    Init      : n  => n
+  }, action);
 }
 
-export default { view, update, actions : { INC, DEC, INIT } }
+export default { view, update, Action }

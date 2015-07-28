@@ -11,27 +11,43 @@ var _snabbdomH = require('snabbdom/h');
 
 var _snabbdomH2 = _interopRequireDefault(_snabbdomH);
 
-var INC = Symbol('inc');
-var DEC = Symbol('dec');
-var INIT = Symbol('init');
+var _unionType = require('union-type');
+
+var _unionType2 = _interopRequireDefault(_unionType);
+
+var Action = (0, _unionType2['default'])({
+  Increment: [],
+  Decrement: [],
+  Init: [Number]
+});
 
 // model : Number
 function view(count, handler) {
   return (0, _snabbdomH2['default'])('div', [(0, _snabbdomH2['default'])('button', {
-    on: { click: handler.bind(null, { type: INC }) }
+    on: { click: handler.bind(null, Action.Increment()) }
   }, '+'), (0, _snabbdomH2['default'])('button', {
-    on: { click: handler.bind(null, { type: DEC }) }
+    on: { click: handler.bind(null, Action.Decrement()) }
   }, '-'), (0, _snabbdomH2['default'])('div', 'Count : ' + count)]);
 }
 
 function update(count, action) {
-  return action.type === INC ? count + 1 : action.type === DEC ? count - 1 : action.type === INIT ? action.data : count;
+  return Action['case']({
+    Increment: function Increment() {
+      return count + 1;
+    },
+    Decrement: function Decrement() {
+      return count - 1;
+    },
+    Init: function Init(n) {
+      return n;
+    }
+  }, action);
 }
 
-exports['default'] = { view: view, update: update, actions: { INC: INC, DEC: DEC, INIT: INIT } };
+exports['default'] = { view: view, update: update, Action: Action };
 module.exports = exports['default'];
 
-},{"snabbdom/h":4}],2:[function(require,module,exports){
+},{"snabbdom/h":4,"union-type":17}],2:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -48,14 +64,20 @@ var _snabbdomH = require('snabbdom/h');
 
 var _snabbdomH2 = _interopRequireDefault(_snabbdomH);
 
+var _unionType = require('union-type');
+
+var _unionType2 = _interopRequireDefault(_unionType);
+
 var _counter = require('./counter');
 
 var _counter2 = _interopRequireDefault(_counter);
 
-var ADD = Symbol('add');
-var COUNTER_ACTION = Symbol('counter action');
-var REMOVE = Symbol('remove');
-var RESET = Symbol('reset');
+var Action = (0, _unionType2['default'])({
+  Add: [],
+  Remove: [Number],
+  Reset: [],
+  Update: [Number, _counter2['default'].Action]
+});
 
 /*  model : {
       counters: [{id: Number, counter: counter.model}],
@@ -64,9 +86,9 @@ var RESET = Symbol('reset');
 */
 function view(model, handler) {
   return (0, _snabbdomH2['default'])('div', [(0, _snabbdomH2['default'])('button', {
-    on: { click: handler.bind(null, { type: ADD }) }
+    on: { click: handler.bind(null, Action.Add()) }
   }, 'Add'), (0, _snabbdomH2['default'])('button', {
-    on: { click: handler.bind(null, { type: RESET }) }
+    on: { click: handler.bind(null, Action.Reset()) }
   }, 'Reset'), (0, _snabbdomH2['default'])('hr'), (0, _snabbdomH2['default'])('div.counter-list', model.counters.map(function (item) {
     return counterItemView(item, handler);
   }))]);
@@ -74,43 +96,73 @@ function view(model, handler) {
 
 function counterItemView(item, handler) {
   return (0, _snabbdomH2['default'])('div.counter-item', { key: item.id }, [(0, _snabbdomH2['default'])('button.remove', {
-    on: { click: function click(e) {
-        return handler({ type: REMOVE, id: item.id });
-      } }
+    on: { click: handler.bind(null, Action.Remove(item.id)) }
   }, 'Remove'), _counter2['default'].view(item.counter, function (a) {
-    return handler({ type: COUNTER_ACTION, id: item.id, data: a });
+    return handler(Action.Update(item.id, a));
   }), (0, _snabbdomH2['default'])('hr')]);
 }
 
-var resetAction = { type: _counter2['default'].actions.INIT, data: 0 };
+var resetAction = _counter2['default'].Action.Init(0);
 
-function addCounter(id) {
-  return { id: id, counter: _counter2['default'].update(null, resetAction) };
+function addCounter(model) {
+  var newCounter = { id: model.nextID, counter: _counter2['default'].update(null, resetAction) };
+  return {
+    counters: [].concat(_toConsumableArray(model.counters), [newCounter]),
+    nextID: model.nextID + 1
+  };
+}
+
+function resetCounters(model) {
+
+  return _extends({}, model, {
+    counters: model.counters.map(function (item) {
+      return _extends({}, item, {
+        counter: _counter2['default'].update(item.counter, resetAction)
+      });
+    })
+  });
+}
+
+function removeCounter(model, id) {
+  return _extends({}, model, {
+    counters: model.counters.filter(function (item) {
+      return item.id !== id;
+    })
+  });
+}
+
+function updateCounter(model, id, action) {
+  return _extends({}, model, {
+    counters: model.counters.map(function (item) {
+      return item.id !== id ? item : _extends({}, item, {
+        counter: _counter2['default'].update(item.counter, action)
+      });
+    })
+  });
 }
 
 function update(model, action) {
 
-  return action.type === ADD ? { counters: [].concat(_toConsumableArray(model.counters), [addCounter(model.nextID)]),
-    nextID: model.nextID + 1
-  } : action.type === RESET ? _extends({}, model, {
-    counters: model.counters.map(function (item) {
-      return _extends({}, item, { counter: _counter2['default'].update(item.counter, resetAction) });
-    })
-  }) : action.type === REMOVE ? _extends({}, model, {
-    counters: model.counters.filter(function (item) {
-      return item.id !== action.id;
-    })
-  }) : action.type === COUNTER_ACTION ? _extends({}, model, {
-    counters: model.counters.map(function (item) {
-      return item.id !== action.id ? item : _extends({}, item, { counter: _counter2['default'].update(item.counter, action.data) });
-    })
-  }) : model;
+  return Action['case']({
+    Add: function Add() {
+      return addCounter(model);
+    },
+    Remove: function Remove(id) {
+      return removeCounter(model, id);
+    },
+    Reset: function Reset() {
+      return resetCounters(model);
+    },
+    Update: function Update(id, action) {
+      return updateCounter(model, id, action);
+    }
+  }, action);
 }
 
-exports['default'] = { view: view, update: update, actions: { ADD: ADD, RESET: RESET, REMOVE: REMOVE, COUNTER_ACTION: COUNTER_ACTION } };
+exports['default'] = { view: view, update: update, Action: Action };
 module.exports = exports['default'];
 
-},{"./counter":1,"snabbdom/h":4}],3:[function(require,module,exports){
+},{"./counter":1,"snabbdom/h":4,"union-type":17}],3:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -548,4 +600,271 @@ module.exports = function(sel, data, children, text, elm) {
           text: text, elm: elm, key: key};
 };
 
-},{}]},{},[3]);
+},{}],12:[function(require,module,exports){
+var _curry2 = require('./internal/_curry2');
+
+
+/**
+ * Wraps a function of any arity (including nullary) in a function that accepts exactly `n`
+ * parameters. Unlike `nAry`, which passes only `n` arguments to the wrapped function,
+ * functions produced by `arity` will pass all provided arguments to the wrapped function.
+ *
+ * @func
+ * @memberOf R
+ * @sig (Number, (* -> *)) -> (* -> *)
+ * @category Function
+ * @param {Number} n The desired arity of the returned function.
+ * @param {Function} fn The function to wrap.
+ * @return {Function} A new function wrapping `fn`. The new function is
+ *         guaranteed to be of arity `n`.
+ * @deprecated since v0.15.0
+ * @example
+ *
+ *      var takesTwoArgs = function(a, b) {
+ *        return [a, b];
+ *      };
+ *      takesTwoArgs.length; //=> 2
+ *      takesTwoArgs(1, 2); //=> [1, 2]
+ *
+ *      var takesOneArg = R.arity(1, takesTwoArgs);
+ *      takesOneArg.length; //=> 1
+ *      // All arguments are passed through to the wrapped function
+ *      takesOneArg(1, 2); //=> [1, 2]
+ */
+module.exports = _curry2(function(n, fn) {
+  // jshint unused:vars
+  switch (n) {
+    case 0: return function() {return fn.apply(this, arguments);};
+    case 1: return function(a0) {return fn.apply(this, arguments);};
+    case 2: return function(a0, a1) {return fn.apply(this, arguments);};
+    case 3: return function(a0, a1, a2) {return fn.apply(this, arguments);};
+    case 4: return function(a0, a1, a2, a3) {return fn.apply(this, arguments);};
+    case 5: return function(a0, a1, a2, a3, a4) {return fn.apply(this, arguments);};
+    case 6: return function(a0, a1, a2, a3, a4, a5) {return fn.apply(this, arguments);};
+    case 7: return function(a0, a1, a2, a3, a4, a5, a6) {return fn.apply(this, arguments);};
+    case 8: return function(a0, a1, a2, a3, a4, a5, a6, a7) {return fn.apply(this, arguments);};
+    case 9: return function(a0, a1, a2, a3, a4, a5, a6, a7, a8) {return fn.apply(this, arguments);};
+    case 10: return function(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9) {return fn.apply(this, arguments);};
+    default: throw new Error('First argument to arity must be a non-negative integer no greater than ten');
+  }
+});
+
+},{"./internal/_curry2":15}],13:[function(require,module,exports){
+var _curry2 = require('./internal/_curry2');
+var _curryN = require('./internal/_curryN');
+var arity = require('./arity');
+
+
+/**
+ * Returns a curried equivalent of the provided function, with the
+ * specified arity. The curried function has two unusual capabilities.
+ * First, its arguments needn't be provided one at a time. If `g` is
+ * `R.curryN(3, f)`, the following are equivalent:
+ *
+ *   - `g(1)(2)(3)`
+ *   - `g(1)(2, 3)`
+ *   - `g(1, 2)(3)`
+ *   - `g(1, 2, 3)`
+ *
+ * Secondly, the special placeholder value `R.__` may be used to specify
+ * "gaps", allowing partial application of any combination of arguments,
+ * regardless of their positions. If `g` is as above and `_` is `R.__`,
+ * the following are equivalent:
+ *
+ *   - `g(1, 2, 3)`
+ *   - `g(_, 2, 3)(1)`
+ *   - `g(_, _, 3)(1)(2)`
+ *   - `g(_, _, 3)(1, 2)`
+ *   - `g(_, 2)(1)(3)`
+ *   - `g(_, 2)(1, 3)`
+ *   - `g(_, 2)(_, 3)(1)`
+ *
+ * @func
+ * @memberOf R
+ * @category Function
+ * @sig Number -> (* -> a) -> (* -> a)
+ * @param {Number} length The arity for the returned function.
+ * @param {Function} fn The function to curry.
+ * @return {Function} A new, curried function.
+ * @see R.curry
+ * @example
+ *
+ *      var addFourNumbers = function() {
+ *        return R.sum([].slice.call(arguments, 0, 4));
+ *      };
+ *
+ *      var curriedAddFourNumbers = R.curryN(4, addFourNumbers);
+ *      var f = curriedAddFourNumbers(1, 2);
+ *      var g = f(3);
+ *      g(4); //=> 10
+ */
+module.exports = _curry2(function curryN(length, fn) {
+  return arity(length, _curryN(length, [], fn));
+});
+
+},{"./arity":12,"./internal/_curry2":15,"./internal/_curryN":16}],14:[function(require,module,exports){
+/**
+ * Optimized internal two-arity curry function.
+ *
+ * @private
+ * @category Function
+ * @param {Function} fn The function to curry.
+ * @return {Function} The curried function.
+ */
+module.exports = function _curry1(fn) {
+  return function f1(a) {
+    if (arguments.length === 0) {
+      return f1;
+    } else if (a != null && a['@@functional/placeholder'] === true) {
+      return f1;
+    } else {
+      return fn(a);
+    }
+  };
+};
+
+},{}],15:[function(require,module,exports){
+var _curry1 = require('./_curry1');
+
+
+/**
+ * Optimized internal two-arity curry function.
+ *
+ * @private
+ * @category Function
+ * @param {Function} fn The function to curry.
+ * @return {Function} The curried function.
+ */
+module.exports = function _curry2(fn) {
+  return function f2(a, b) {
+    var n = arguments.length;
+    if (n === 0) {
+      return f2;
+    } else if (n === 1 && a != null && a['@@functional/placeholder'] === true) {
+      return f2;
+    } else if (n === 1) {
+      return _curry1(function(b) { return fn(a, b); });
+    } else if (n === 2 && a != null && a['@@functional/placeholder'] === true &&
+                          b != null && b['@@functional/placeholder'] === true) {
+      return f2;
+    } else if (n === 2 && a != null && a['@@functional/placeholder'] === true) {
+      return _curry1(function(a) { return fn(a, b); });
+    } else if (n === 2 && b != null && b['@@functional/placeholder'] === true) {
+      return _curry1(function(b) { return fn(a, b); });
+    } else {
+      return fn(a, b);
+    }
+  };
+};
+
+},{"./_curry1":14}],16:[function(require,module,exports){
+var arity = require('../arity');
+
+
+/**
+ * Internal curryN function.
+ *
+ * @private
+ * @category Function
+ * @param {Number} length The arity of the curried function.
+ * @return {array} An array of arguments received thus far.
+ * @param {Function} fn The function to curry.
+ */
+module.exports = function _curryN(length, received, fn) {
+  return function() {
+    var combined = [];
+    var argsIdx = 0;
+    var left = length;
+    var combinedIdx = 0;
+    while (combinedIdx < received.length || argsIdx < arguments.length) {
+      var result;
+      if (combinedIdx < received.length &&
+          (received[combinedIdx] == null ||
+           received[combinedIdx]['@@functional/placeholder'] !== true ||
+           argsIdx >= arguments.length)) {
+        result = received[combinedIdx];
+      } else {
+        result = arguments[argsIdx];
+        argsIdx += 1;
+      }
+      combined[combinedIdx] = result;
+      if (result == null || result['@@functional/placeholder'] !== true) {
+        left -= 1;
+      }
+      combinedIdx += 1;
+    }
+    return left <= 0 ? fn.apply(this, combined) : arity(left, _curryN(length, combined, fn));
+  };
+};
+
+},{"../arity":12}],17:[function(require,module,exports){
+var curryN = require('ramda/src/curryN');
+
+function isString(s) { return typeof s === 'string'; }
+function isNumber(n) { return typeof n === 'number'; }
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+function isFunction(f) { return typeof f === 'function'; }
+var isArray = Array.isArray || function(a) { return 'length' in a; };
+
+var mapConstrToFn = curryN(2, function(group, constr) {
+  return constr === String    ? isString
+       : constr === Number    ? isNumber
+       : constr === Object    ? isObject
+       : constr === Array     ? isArray
+       : constr === Function  ? isFunction
+       : constr === undefined ? group
+                              : constr;
+});
+
+function Constructor(group, name, validators) {
+  validators = validators.map(mapConstrToFn(group));
+  var constructor = curryN(validators.length, function() {
+    var val = [], v, validator;
+    for (var i = 0; i < arguments.length; ++i) {
+      v = arguments[i];
+      validator = validators[i];
+      if ((typeof validator === 'function' && validator(v)) ||
+          (v !== undefined && v !== null && v.of === validator)) {
+        val[i] = arguments[i];
+      } else {
+        throw new TypeError('wrong value ' + v + ' passed to location ' + i + ' in ' + name);
+      }
+    }
+    val.of = group;
+    val.name = name;
+    return val;
+  });
+  return constructor;
+}
+
+function rawCase(type, cases, action, arg) {
+  if (type !== action.of) throw new TypeError('wrong type passed to case');
+  var name = action.name in cases ? action.name
+           : '_' in cases         ? '_'
+                                  : undefined;
+  if (name === undefined) {
+    throw new Error('unhandled value passed to case');
+  } else {
+    return cases[name].apply(undefined, arg !== undefined ? action.concat([arg]) : action);
+  }
+}
+
+var typeCase = curryN(3, rawCase);
+var caseOn = curryN(4, rawCase);
+
+function Type(desc) {
+  var obj = {};
+  for (var key in desc) {
+    obj[key] = Constructor(obj, key, desc[key]);
+  }
+  obj.case = typeCase(obj);
+  obj.caseOn = caseOn(obj);
+  return obj;
+}
+
+module.exports = Type;
+
+},{"ramda/src/curryN":13}]},{},[3]);

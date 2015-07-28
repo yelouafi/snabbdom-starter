@@ -9,7 +9,8 @@
   },
   "author": "Yassine Elouafi <yelouafi@gmail.com>",
   "dependencies": {
-    "snabbdom": "^0.2.0"
+    "snabbdom": "^0.2.0",
+    "union-type": "^0.1.6"
   },
   "devDependencies": {
     "babel": "^5.2.13",
