@@ -3,8 +3,8 @@
 import h from 'snabbdom/h';
 import counter from './counter';
 
-const FIRST_ACTION  = Symbol('first');
-const SECOND_ACTION = Symbol('second');
+const UPDATE_FIRST  = Symbol('update first');
+const UPDATE_SECOND = Symbol('update second');
 const RESET         = Symbol('reset');
 
 // model : {first: counter.model, second: counter.model }
@@ -14,9 +14,9 @@ function view(model, handler) {
       on   : { click: handler.bind(null, {type: RESET}) }
     }, 'Reset'),
     h('hr'),
-    counter.view(model.first, a => handler({ type: FIRST_ACTION, data: a})),
+    counter.view(model.first, a => handler({ type: UPDATE_FIRST, data: a})),
     h('hr'),
-    counter.view(model.second, a => handler({ type: SECOND_ACTION, data: a})),
+    counter.view(model.second, a => handler({ type: UPDATE_SECOND, data: a})),
     
   ]); 
 }
@@ -29,11 +29,14 @@ function update(model, action) {
               first : counter.update(model.first, resetAction),
               second: counter.update(model.second, resetAction)
             }
-        : action.type === FIRST_ACTION   ?
+            
+        : action.type === UPDATE_FIRST   ?
             {...model, first : counter.update(model.first, action.data) }
-        : action.type === SECOND_ACTION  ?
+            
+        : action.type === UPDATE_SECOND  ?
             {...model, second : counter.update(model.second, action.data) }
+            
         : model;
 }
 
-export default { view, update, actions : { FIRST_ACTION, SECOND_ACTION, RESET } }
+export default { view, update, actions : { UPDATE_FIRST, UPDATE_SECOND, RESET } }

@@ -12,8 +12,8 @@ test('counter update function', (assert) => {
   const decCounter = action(counterActions.DEC);
   const reset = action(counterActions.INIT, 0);
   
-  model = update(model, action(actions.FIRST_ACTION, incCounter));
-  model = update(model, action(actions.SECOND_ACTION, decCounter));
+  model = update(model, action(actions.UPDATE_FIRST, incCounter));
+  model = update(model, action(actions.UPDATE_SECOND, decCounter));
   assert.deepEqual(model, {first: 1, second: -1});
 
   model = update(model, action(actions.RESET));
