@@ -53,7 +53,7 @@ var _counter = require('./counter');
 var _counter2 = _interopRequireDefault(_counter);
 
 var ADD = Symbol('add');
-var COUNTER_ACTION = Symbol('counter action');
+var UPDATE = Symbol('update counter');
 var REMOVE = Symbol('remove');
 var RESET = Symbol('reset');
 
@@ -78,36 +78,55 @@ function counterItemView(item, handler) {
         return handler({ type: REMOVE, id: item.id });
       } }
   }, 'Remove'), _counter2['default'].view(item.counter, function (a) {
-    return handler({ type: COUNTER_ACTION, id: item.id, data: a });
+    return handler({ type: UPDATE, id: item.id, data: a });
   }), (0, _snabbdomH2['default'])('hr')]);
 }
 
 var resetAction = { type: _counter2['default'].actions.INIT, data: 0 };
 
-function addCounter(id) {
-  return { id: id, counter: _counter2['default'].update(null, resetAction) };
+function addCounter(model) {
+  var newCounter = { id: model.nextID, counter: _counter2['default'].update(null, resetAction) };
+  return {
+    counters: [].concat(_toConsumableArray(model.counters), [newCounter]),
+    nextID: model.nextID + 1
+  };
+}
+
+function resetCounters(model) {
+
+  return _extends({}, model, {
+    counters: model.counters.map(function (item) {
+      return _extends({}, item, {
+        counter: _counter2['default'].update(item.counter, resetAction)
+      });
+    })
+  });
+}
+
+function removeCounter(model, id) {
+  return _extends({}, model, {
+    counters: model.counters.filter(function (item) {
+      return item.id !== id;
+    })
+  });
+}
+
+function updateCounter(model, id, action) {
+  return _extends({}, model, {
+    counters: model.counters.map(function (item) {
+      return item.id !== id ? item : _extends({}, item, {
+        counter: _counter2['default'].update(item.counter, action)
+      });
+    })
+  });
 }
 
 function update(model, action) {
 
-  return action.type === ADD ? { counters: [].concat(_toConsumableArray(model.counters), [addCounter(model.nextID)]),
-    nextID: model.nextID + 1
-  } : action.type === RESET ? _extends({}, model, {
-    counters: model.counters.map(function (item) {
-      return _extends({}, item, { counter: _counter2['default'].update(item.counter, resetAction) });
-    })
-  }) : action.type === REMOVE ? _extends({}, model, {
-    counters: model.counters.filter(function (item) {
-      return item.id !== action.id;
-    })
-  }) : action.type === COUNTER_ACTION ? _extends({}, model, {
-    counters: model.counters.map(function (item) {
-      return item.id !== action.id ? item : _extends({}, item, { counter: _counter2['default'].update(item.counter, action.data) });
-    })
-  }) : model;
+  return action.type === ADD ? addCounter(model) : action.type === RESET ? resetCounters(model) : action.type === REMOVE ? removeCounter(model, action.id) : action.type === UPDATE ? updateCounter(model, action.id, action.data) : model;
 }
 
-exports['default'] = { view: view, update: update, actions: { ADD: ADD, RESET: RESET, REMOVE: REMOVE, COUNTER_ACTION: COUNTER_ACTION } };
+exports['default'] = { view: view, update: update, actions: { ADD: ADD, RESET: RESET, REMOVE: REMOVE, UPDATE: UPDATE } };
 module.exports = exports['default'];
 
 },{"./counter":1,"snabbdom/h":4}],3:[function(require,module,exports){

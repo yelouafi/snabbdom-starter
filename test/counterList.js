@@ -23,12 +23,12 @@ test('counter update function', (assert) => {
   ]});
   
   model = update(model, { 
-    type: actions.COUNTER_ACTION, 
+    type: actions.UPDATE, 
     id: 1,
     data: incCounter  
   });
   model = update(model, { 
-    type: actions.COUNTER_ACTION, 
+    type: actions.UPDATE, 
     id: 2,
     data: decCounter  
   });

@@ -3,10 +3,10 @@
 import h from 'snabbdom/h';
 import counter from './counter';
 
-const ADD             = Symbol('add');
-const COUNTER_ACTION  = Symbol('counter action');
-const REMOVE          = Symbol('remove');
-const RESET           = Symbol('reset');
+const ADD     = Symbol('add');
+const UPDATE  = Symbol('update counter');
+const REMOVE  = Symbol('remove');
+const RESET   = Symbol('reset');
 
 /*  model : {
       counters: [{id: Number, counter: counter.model}],
@@ -32,41 +32,56 @@ function counterItemView(item, handler) {
     h('button.remove', {
       on : { click: e => handler({ type: REMOVE, id: item.id})  }
     }, 'Remove'),
-    counter.view(item.counter, a => handler({type: COUNTER_ACTION, id: item.id, data: a})),
+    counter.view(item.counter, a => handler({type: UPDATE, id: item.id, data: a})),
     h('hr')
   ]);
 }
 
 const resetAction = {type: counter.actions.INIT, data: 0};
 
-function addCounter(id) {
-  return {id, counter: counter.update(null, resetAction) };
+function addCounter(model) {
+  const newCounter = {id: model.nextID, counter: counter.update(null, resetAction) };
+  return {
+    counters  : [...model.counters, newCounter],
+    nextID    : model.nextID + 1
+  };
 }
+
+function resetCounters(model) {
+  
+  return {...model,
+    counters  : model.counters.map(item => ({...item, 
+      counter: counter.update(item.counter, resetAction)
+    }))
+  };
+}
+
+function removeCounter(model, id) {
+  return {...model,
+    counters : model.counters.filter( item => item.id !== id )
+  };
+}
+
+function updateCounter(model, id, action) {
+  return {...model,
+    counters  : model.counters.map(item => 
+      item.id !== id ? 
+          item
+        : { ...item, 
+            counter : counter.update(item.counter, action)
+          }
+    )
+  };
+}
+
 
 function update(model, action) {
   
-  return  action.type === ADD ?
-            { counters  : [...model.counters, addCounter(model.nextID)],
-              nextID    : model.nextID + 1
-            }
-        : action.type === RESET ?
-            { ... model, 
-              counters: model.counters.map( item => 
-                ({...item, counter: counter.update(item.counter, resetAction)})
-              )
-            }
-        : action.type === REMOVE ?
-            { ...model, 
-              counters : model.counters.filter(item => item.id !== action.id)
-            }
-        : action.type === COUNTER_ACTION ?
-            { ...model, 
-              counters: model.counters.map( item => item.id !== action.id ? 
-                  item
-                : ({...item, counter: counter.update(item.counter, action.data)})
-              )
-            }
+  return  action.type === ADD     ? addCounter(model)
+        : action.type === RESET   ? resetCounters(model)
+        : action.type === REMOVE  ? removeCounter(model, action.id)
+        : action.type === UPDATE  ? updateCounter(model, action.id, action.data) 
         : model;
 }
 
-export default { view, update, actions : { ADD, RESET, REMOVE, COUNTER_ACTION } }
+export default { view, update, actions : { ADD, RESET, REMOVE, UPDATE } }
