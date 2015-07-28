@@ -17,17 +17,17 @@ var DEC = Symbol('dec');
 // model : Number
 function view(count, handler) {
   return (0, _snabbdomH2['default'])('div', [(0, _snabbdomH2['default'])('button', {
-    on: { click: handler.bind(null, INC) }
+    on: { click: handler.bind(null, { type: INC }) }
   }, '+'), (0, _snabbdomH2['default'])('button', {
-    on: { click: handler.bind(null, DEC) }
+    on: { click: handler.bind(null, { type: DEC }) }
   }, '-'), (0, _snabbdomH2['default'])('div', 'Count : ' + count)]);
 }
 
 function update(count, action) {
-  return action === INC ? count + 1 : action === DEC ? count - 1 : count;
+  return action.type === INC ? count + 1 : action.type === DEC ? count - 1 : count;
 }
 
-exports['default'] = { view: view, update: update };
+exports['default'] = { view: view, update: update, actions: { INC: INC, DEC: DEC } };
 module.exports = exports['default'];
 
 },{"snabbdom/h":3}],2:[function(require,module,exports){
