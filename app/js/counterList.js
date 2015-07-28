@@ -3,16 +3,18 @@
 import h from 'snabbdom/h';
 import counter from './counter';
 
+/*
+  model : {
+    counters: [{id: Number, counter: counter.model}],
+    nextID  : Number
+  }
+*/
+
 const ADD     = Symbol('add');
 const UPDATE  = Symbol('update counter');
 const REMOVE  = Symbol('remove');
 const RESET   = Symbol('reset');
 
-/*  model : {
-      counters: [{id: Number, counter: counter.model}],
-      nextID  : Number
-    }
-*/
 function view(model, handler) { 
   return h('div', [
     h('button', {
