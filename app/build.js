@@ -5,29 +5,43 @@ Object.defineProperty(exports, '__esModule', {
   value: true
 });
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
 var _snabbdomH = require('snabbdom/h');
 
 var _snabbdomH2 = _interopRequireDefault(_snabbdomH);
 
-var INC = Symbol('inc');
-var DEC = Symbol('dec');
+var INIT = Symbol('INIT');
+var START_ASYNC = Symbol('START ASYNC');
+var FIN_ASYNC = Symbol('FIN ASYNC');
 
-// model : Number
-function view(count, handler) {
+var currentHandler;
+function getAsyncMsg(handler) {
+  currentHandler({ type: START_ASYNC });
+  setTimeout(function () {
+    currentHandler({ type: FIN_ASYNC, data: 'Hello async' });
+  }, 5000);
+}
+
+// model : { message: String, pending: Number }
+function view(model, handler) {
+  currentHandler = handler;
   return (0, _snabbdomH2['default'])('div', [(0, _snabbdomH2['default'])('button', {
-    on: { click: handler.bind(null, { type: INC }) }
-  }, '+'), (0, _snabbdomH2['default'])('button', {
-    on: { click: handler.bind(null, { type: DEC }) }
-  }, '-'), (0, _snabbdomH2['default'])('div', 'Count : ' + count)]);
+    on: { click: function click() {
+        return getAsyncMsg(handler);
+      } }
+  }, 'Get Async Message'), (0, _snabbdomH2['default'])('span', {
+    style: { display: model.pending ? 'inline' : 'none' }
+  }, 'Waiting response...'), (0, _snabbdomH2['default'])('div', 'Message : ' + model.message)]);
 }
 
-function update(count, action) {
-  return action.type === INC ? count + 1 : action.type === DEC ? count - 1 : count;
+function update(model, action) {
+  return action.type === INIT ? { message: '', pending: 0 } : action.type === START_ASYNC ? _extends({}, model, { pending: model.pending + 1 }) : action.type === FIN_ASYNC ? { message: action.data, pending: model.pending - 1 } : model;
 }
 
-exports['default'] = { view: view, update: update, actions: { INC: INC, DEC: DEC } };
+exports['default'] = { view: view, update: update, actions: { INIT: INIT, START_ASYNC: START_ASYNC, FIN_ASYNC: FIN_ASYNC } };
 module.exports = exports['default'];
 
 },{"snabbdom/h":3}],2:[function(require,module,exports){
@@ -39,9 +53,9 @@ var _snabbdom = require('snabbdom');
 
 var _snabbdom2 = _interopRequireDefault(_snabbdom);
 
-var _counter = require('./counter');
+var _async = require('./async');
 
-var _counter2 = _interopRequireDefault(_counter);
+var _async2 = _interopRequireDefault(_async);
 
 var patch = _snabbdom2['default'].init([require('snabbdom/modules/class'), // makes it easy to toggle classes
 require('snabbdom/modules/props'), // for setting properties on DOM elements
@@ -59,11 +73,10 @@ function main(initState, oldVnode, _ref) {
   patch(oldVnode, newVnode);
 }
 
-main(0, // the initial state
-document.getElementById('placeholder'), _counter2['default']);
+main(_async2['default'].update(null, { type: _async2['default'].actions.INIT }), document.querySelector('#placeholder'), _async2['default']);
 // attaches event listeners
 
-},{"./counter":1,"snabbdom":9,"snabbdom/modules/class":5,"snabbdom/modules/eventlisteners":6,"snabbdom/modules/props":7,"snabbdom/modules/style":8}],3:[function(require,module,exports){
+},{"./async":1,"snabbdom":9,"snabbdom/modules/class":5,"snabbdom/modules/eventlisteners":6,"snabbdom/modules/props":7,"snabbdom/modules/style":8}],3:[function(require,module,exports){
 var VNode = require('./vnode');
 var is = require('./is');
 
