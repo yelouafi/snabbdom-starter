@@ -1,5 +1,7 @@
 # snabbdom-starter
 
+[![Join the chat at https://gitter.im/yelouafi/snabbdom-starter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/yelouafi/snabbdom-starter?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A simple snabbdom starter repository. Using the following tools:
 
 - browserify/watchify for client side bundling
