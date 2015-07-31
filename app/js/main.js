@@ -15,7 +15,7 @@ function view(name) {
   return h('div', [
     h('input', {
       props: { type: 'text', placeholder: 'Type a your name' },
-      on   : { input: onInput }
+      on   : { input: update }
     }),
     h('hr'),
     h('div', 'Hello ' + name)
@@ -24,7 +24,7 @@ function view(name) {
 
 var oldVnode = document.getElementById('placeholder');
 
-function onInput(event) {
+function update(event) {
   const newVnode = view(event.target.value);
   oldVnode = patch(oldVnode, newVnode);
 }

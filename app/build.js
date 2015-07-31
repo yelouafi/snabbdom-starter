@@ -19,13 +19,13 @@ require('snabbdom/modules/eventlisteners')]);
 function view(name) {
   return (0, _snabbdomH2['default'])('div', [(0, _snabbdomH2['default'])('input', {
     props: { type: 'text', placeholder: 'Type a your name' },
-    on: { input: onInput }
+    on: { input: update }
   }), (0, _snabbdomH2['default'])('hr'), (0, _snabbdomH2['default'])('div', 'Hello ' + name)]);
 }
 
 var oldVnode = document.getElementById('placeholder');
 
-function onInput(event) {
+function update(event) {
   var newVnode = view(event.target.value);
   oldVnode = patch(oldVnode, newVnode);
 }
