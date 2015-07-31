@@ -13,24 +13,25 @@ var _snabbdomH = require('snabbdom/h');
 
 var _snabbdomH2 = _interopRequireDefault(_snabbdomH);
 
-var INIT = Symbol('INIT');
-var START_ASYNC = Symbol('START ASYNC');
-var FIN_ASYNC = Symbol('FIN ASYNC');
+var _asyncMessage = require('./asyncMessage');
 
-var currentHandler;
-function getAsyncMsg(handler) {
-  currentHandler({ type: START_ASYNC });
-  setTimeout(function () {
-    currentHandler({ type: FIN_ASYNC, data: 'Hello async' });
-  }, 5000);
-}
+var _asyncMessage2 = _interopRequireDefault(_asyncMessage);
+
+var INIT = Symbol('INIT');
+
+var msg = (0, _asyncMessage2['default'])();
 
 // model : { message: String, pending: Number }
 function view(model, handler) {
-  currentHandler = handler;
+
   return (0, _snabbdomH2['default'])('div', [(0, _snabbdomH2['default'])('button', {
+    hook: msg.hook(handler),
     on: { click: function click() {
-        return getAsyncMsg(handler);
+        return msg.start(handler, function (cb) {
+          return setTimeout(function () {
+            return cb('Hello async');
+          }, 3000);
+        });
       } }
   }, 'Get Async Message'), (0, _snabbdomH2['default'])('span', {
     style: { display: model.pending ? 'inline' : 'none' }
@@ -38,13 +39,46 @@ function view(model, handler) {
 }
 
 function update(model, action) {
-  return action.type === INIT ? { message: '', pending: 0 } : action.type === START_ASYNC ? _extends({}, model, { pending: model.pending + 1 }) : action.type === FIN_ASYNC ? { message: action.data, pending: model.pending - 1 } : model;
+  return action.type === INIT ? { message: '', pending: 0 } : action.type === msg.ASYNC_START ? _extends({}, model, { pending: model.pending + 1 }) : action.type === msg.ASYNC_FIN ? { message: action.data, pending: model.pending - 1 } : model;
 }
 
-exports['default'] = { view: view, update: update, actions: { INIT: INIT, START_ASYNC: START_ASYNC, FIN_ASYNC: FIN_ASYNC } };
+exports['default'] = { view: view, update: update, actions: { INIT: INIT } };
 module.exports = exports['default'];
 
-},{"snabbdom/h":3}],2:[function(require,module,exports){
+},{"./asyncMessage":2,"snabbdom/h":4}],2:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', {
+  value: true
+});
+//{ pending, response, handler }
+
+var ASYNC_START = Symbol('ASYNC START');
+var ASYNC_FIN = Symbol('ASYNC FIN');
+
+function asyncMessage() {
+
+  var currentHandler;
+
+  function start(handler, request) {
+    currentHandler = handler;
+    request(function (resp) {
+      currentHandler({ type: ASYNC_FIN, data: resp });
+    });
+    currentHandler({ type: ASYNC_START });
+  }
+
+  var hook = function hook(handler) {
+    update: currentHandler = handler;
+  };
+
+  return { start: start, hook: hook, ASYNC_START: ASYNC_START, ASYNC_FIN: ASYNC_FIN };
+}
+
+exports['default'] = asyncMessage;
+module.exports = exports['default'];
+
+},{}],3:[function(require,module,exports){
 'use strict';
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -76,7 +110,7 @@ function main(initState, oldVnode, _ref) {
 main(_async2['default'].update(null, { type: _async2['default'].actions.INIT }), document.querySelector('#placeholder'), _async2['default']);
 // attaches event listeners
 
-},{"./async":1,"snabbdom":9,"snabbdom/modules/class":5,"snabbdom/modules/eventlisteners":6,"snabbdom/modules/props":7,"snabbdom/modules/style":8}],3:[function(require,module,exports){
+},{"./async":1,"snabbdom":10,"snabbdom/modules/class":6,"snabbdom/modules/eventlisteners":7,"snabbdom/modules/props":8,"snabbdom/modules/style":9}],4:[function(require,module,exports){
 var VNode = require('./vnode');
 var is = require('./is');
 
@@ -99,13 +133,13 @@ module.exports = function h(sel, b, c) {
   return VNode(sel, data, children, text, undefined);
 };
 
-},{"./is":4,"./vnode":10}],4:[function(require,module,exports){
+},{"./is":5,"./vnode":11}],5:[function(require,module,exports){
 module.exports = {
   array: Array.isArray,
   primitive: function(s) { return typeof s === 'string' || typeof s === 'number'; },
 };
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 function updateClass(oldVnode, vnode) {
   var cur, name, elm = vnode.elm,
       oldClass = oldVnode.data.class || {},
@@ -120,7 +154,7 @@ function updateClass(oldVnode, vnode) {
 
 module.exports = {create: updateClass, update: updateClass};
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 var is = require('../is');
 
 function arrInvoker(arr) {
@@ -159,7 +193,7 @@ function updateEventListeners(oldVnode, vnode) {
 
 module.exports = {create: updateEventListeners, update: updateEventListeners};
 
-},{"../is":4}],7:[function(require,module,exports){
+},{"../is":5}],8:[function(require,module,exports){
 function updateProps(oldVnode, vnode) {
   var key, cur, old, elm = vnode.elm,
       oldProps = oldVnode.data.props || {}, props = vnode.data.props || {};
@@ -174,7 +208,7 @@ function updateProps(oldVnode, vnode) {
 
 module.exports = {create: updateProps, update: updateProps};
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var raf = requestAnimationFrame || setTimeout;
 var nextFrame = function(fn) { raf(function() { raf(fn); }); };
 
@@ -235,7 +269,7 @@ function applyRemoveStyle(vnode, rm) {
 
 module.exports = {create: updateStyle, update: updateStyle, destroy: applyDestroyStyle, remove: applyRemoveStyle};
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 // jshint newcap: false
 /* global require, module, document, Element */
 'use strict';
@@ -474,11 +508,11 @@ function init(modules) {
 
 module.exports = {init: init};
 
-},{"./is":4,"./vnode":10}],10:[function(require,module,exports){
+},{"./is":5,"./vnode":11}],11:[function(require,module,exports){
 module.exports = function(sel, data, children, text, elm) {
   var key = data === undefined ? undefined : data.key;
   return {sel: sel, data: data, children: children,
           text: text, elm: elm, key: key};
 };
 
-},{}]},{},[2]);
+},{}]},{},[3]);
