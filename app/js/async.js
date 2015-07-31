@@ -4,14 +4,14 @@ import h from 'snabbdom/h';
 
 const INIT        = Symbol('INIT');
 const START_ASYNC = Symbol('START ASYNC');
-const FIN_ASYNC   = Symbol('FIN ASYNC');
+const END_ASYNC   = Symbol('END ASYNC');
 
 var currentHandler;
 function getAsyncMsg(handler) {
   currentHandler({type: START_ASYNC});
   setTimeout(() => {
-    currentHandler({ type: FIN_ASYNC, data: 'Hello async'});
-  }, 5000);
+    currentHandler({ type: END_ASYNC, data: 'Hello async'});
+  }, 2000);
 }
 
 // model : { message: String, pending: Number }
@@ -33,8 +33,8 @@ function view(model, handler) {
 function update(model, action) {
   return  action.type === INIT        ? { message: '', pending: 0 }
         : action.type === START_ASYNC ? {...model, pending: model.pending + 1 }
-        : action.type === FIN_ASYNC   ? { message: action.data, pending: model.pending - 1 }
+        : action.type === END_ASYNC   ? { message: action.data, pending: model.pending - 1 }
         : model;
 }
 
-export default { view, update, actions : { INIT, START_ASYNC, FIN_ASYNC } }
+export default { view, update, actions : { INIT, START_ASYNC, END_ASYNC } }
