@@ -1,12 +1,13 @@
 import test from 'tape';
-import { update, actions } from '../app/js/twoCounters';
+import { init, update, actions } from '../app/js/twoCounters';
 import { actions as counterActions } from '../app/js/counter';
 import { action } from './helpers';
 
 
 test('counter update function', (assert) => {
     
-  var model = {first: 0, second: 0};
+  var model = init();
+  assert.deepEqual(model, {first: 0, second: 0});
   
   const incCounter = action(counterActions.INC);
   const decCounter = action(counterActions.DEC);

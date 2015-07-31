@@ -13,7 +13,6 @@ var _snabbdomH2 = _interopRequireDefault(_snabbdomH);
 
 var INC = Symbol('inc');
 var DEC = Symbol('dec');
-var INIT = Symbol('init');
 
 // model : Number
 function view(count, handler) {
@@ -24,11 +23,15 @@ function view(count, handler) {
   }, '-'), (0, _snabbdomH2['default'])('div', 'Count : ' + count)]);
 }
 
-function update(count, action) {
-  return action.type === INC ? count + 1 : action.type === DEC ? count - 1 : action.type === INIT ? action.data : count;
+function init() {
+  return 0;
 }
 
-exports['default'] = { view: view, update: update, actions: { INC: INC, DEC: DEC, INIT: INIT } };
+function update(count, action) {
+  return action.type === INC ? count + 1 : action.type === DEC ? count - 1 : count;
+}
+
+exports['default'] = { view: view, init: init, update: update, actions: { INC: INC, DEC: DEC } };
 module.exports = exports['default'];
 
 },{"snabbdom/h":4}],2:[function(require,module,exports){
@@ -60,7 +63,7 @@ function main(initState, oldVnode, _ref) {
   patch(oldVnode, newVnode);
 }
 
-main({ first: 0, second: 0 }, // the initial state
+main(_twoCounters2['default'].init(), // the initial state
 document.getElementById('placeholder'), _twoCounters2['default']);
 // attaches event listeners
 
@@ -98,16 +101,18 @@ function view(model, handler) {
   })]);
 }
 
-var resetAction = { type: _counter2['default'].actions.INIT, data: 0 };
+function init() {
+  return { first: _counter2['default'].init(), second: _counter2['default'].init() };
+}
 
 function update(model, action) {
   return action.type === RESET ? {
-    first: _counter2['default'].update(model.first, resetAction),
-    second: _counter2['default'].update(model.second, resetAction)
-  } : action.type === FIRST_ACTION ? _extends({}, model, { first: _counter2['default'].update(model.first, action.data) }) : action.type === SECOND_ACTION ? _extends({}, model, { second: _counter2['default'].update(model.second, action.data) }) : model;
+    first: _counter2['default'].init(0),
+    second: _counter2['default'].init(0)
+  } : action.type === UPDATE_FIRST ? _extends({}, model, { first: _counter2['default'].update(model.first, action.data) }) : action.type === UPDATE_SECOND ? _extends({}, model, { second: _counter2['default'].update(model.second, action.data) }) : model;
 }
 
-exports['default'] = { view: view, update: update, actions: { UPDATE_FIRST: UPDATE_FIRST, UPDATE_SECOND: UPDATE_SECOND, RESET: RESET } };
+exports['default'] = { view: view, init: init, update: update, actions: { UPDATE_FIRST: UPDATE_FIRST, UPDATE_SECOND: UPDATE_SECOND, RESET: RESET } };
 module.exports = exports['default'];
 
 },{"./counter":1,"snabbdom/h":4}],4:[function(require,module,exports){

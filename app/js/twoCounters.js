@@ -21,11 +21,15 @@ function view(model, handler) {
   ]); 
 }
 
+function init() {
+  return { first: counter.init(), second: counter.init() };
+}
+
 function update(model, action) {
   return  action.type === RESET     ?
             { 
-              first : counter.init(0),
-              second: counter.init(0)
+              first : counter.init(),
+              second: counter.init()
             }
             
         : action.type === UPDATE_FIRST   ?
@@ -37,4 +41,4 @@ function update(model, action) {
         : model;
 }
 
-export default { view, update, actions : { UPDATE_FIRST, UPDATE_SECOND, RESET } }
+export default { view, init, update, actions : { UPDATE_FIRST, UPDATE_SECOND, RESET } }

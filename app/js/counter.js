@@ -19,9 +19,8 @@ function view(count, handler) {
   ]); 
 }
 
-// Number -> counter.model
-function init(number) {
-  return number;
+function init() {
+  return 0;
 }
 
 

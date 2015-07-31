@@ -22,7 +22,7 @@ function main(initState, oldVnode, {view, update}) {
 }
 
 main(
-  {first: 0, second: 0}, // the initial state 
+  twoCounters.init(), // the initial state 
   document.getElementById('placeholder'), 
   twoCounters
 );
