@@ -14,14 +14,14 @@ var _snabbdomH = require('snabbdom/h');
 var _snabbdomH2 = _interopRequireDefault(_snabbdomH);
 
 var INIT = Symbol('INIT');
-var START_ASYNC = Symbol('START ASYNC');
-var END_ASYNC = Symbol('END ASYNC');
+var ASYNC_START = Symbol('ASYNC START');
+var ASYNC_END = Symbol('ASYNC ASYNC');
 
 var currentHandler;
 function getAsyncMsg(handler) {
-  currentHandler({ type: START_ASYNC });
+  currentHandler({ type: ASYNC_START });
   setTimeout(function () {
-    currentHandler({ type: END_ASYNC, data: 'Hello async' });
+    currentHandler({ type: ASYNC_END, data: 'Hello async' });
   }, 2000);
 }
 
@@ -38,10 +38,10 @@ function view(model, handler) {
 }
 
 function update(model, action) {
-  return action.type === INIT ? { message: '', pending: 0 } : action.type === START_ASYNC ? _extends({}, model, { pending: model.pending + 1 }) : action.type === END_ASYNC ? { message: action.data, pending: model.pending - 1 } : model;
+  return action.type === INIT ? { message: '', pending: 0 } : action.type === ASYNC_START ? _extends({}, model, { pending: model.pending + 1 }) : action.type === ASYNC_END ? { message: action.data, pending: model.pending - 1 } : model;
 }
 
-exports['default'] = { view: view, update: update, actions: { INIT: INIT, START_ASYNC: START_ASYNC, END_ASYNC: END_ASYNC } };
+exports['default'] = { view: view, update: update, actions: { INIT: INIT, ASYNC_START: ASYNC_START, ASYNC_END: ASYNC_END } };
 module.exports = exports['default'];
 
 },{"snabbdom/h":3}],2:[function(require,module,exports){
