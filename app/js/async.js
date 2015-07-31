@@ -13,7 +13,7 @@ function view(model, handler) {
   return h('div', [
     h('button', {
       hook : msg.hook(handler), 
-      on   : { click: () => msg.start(handler, cb => setTimeout(() => cb('Hello async'), 3000)) }
+      on   : { click: () => msg.start(handler, cb => setTimeout(() => cb('Hello async'), 2000)) }
     }, 'Get Async Message'),
     
     h('span', {
@@ -27,7 +27,7 @@ function view(model, handler) {
 function update(model, action) {
   return  action.type === INIT            ? { message: '', pending: 0 }
         : action.type === msg.ASYNC_START ? {...model, pending: model.pending + 1 }
-        : action.type === msg.ASYNC_FIN   ? { message: action.data, pending: model.pending - 1 }
+        : action.type === msg.ASYNC_END   ? { message: action.data, pending: model.pending - 1 }
         : model;
 }
 

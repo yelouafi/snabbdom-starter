@@ -3,7 +3,7 @@
 //{ pending, response, handler } 
 
 const ASYNC_START = Symbol('ASYNC START');
-const ASYNC_FIN   = Symbol('ASYNC FIN');
+const ASYNC_END   = Symbol('ASYNC FIN');
 
 function asyncMessage() {
   
@@ -12,7 +12,7 @@ function asyncMessage() {
   function start(handler, request) {
     currentHandler = handler;
     request( resp => {
-      currentHandler({ type: ASYNC_FIN, data: resp });
+      currentHandler({ type: ASYNC_END, data: resp });
     });
     currentHandler({ type: ASYNC_START });
   }
@@ -21,7 +21,7 @@ function asyncMessage() {
     update : currentHandler = handler;
   };
   
-  return { start, hook, ASYNC_START, ASYNC_FIN };
+  return { start, hook, ASYNC_START, ASYNC_END };
 }
 
 export default asyncMessage;

@@ -30,7 +30,7 @@ function view(model, handler) {
         return msg.start(handler, function (cb) {
           return setTimeout(function () {
             return cb('Hello async');
-          }, 3000);
+          }, 2000);
         });
       } }
   }, 'Get Async Message'), (0, _snabbdomH2['default'])('span', {
@@ -39,7 +39,7 @@ function view(model, handler) {
 }
 
 function update(model, action) {
-  return action.type === INIT ? { message: '', pending: 0 } : action.type === msg.ASYNC_START ? _extends({}, model, { pending: model.pending + 1 }) : action.type === msg.ASYNC_FIN ? { message: action.data, pending: model.pending - 1 } : model;
+  return action.type === INIT ? { message: '', pending: 0 } : action.type === msg.ASYNC_START ? _extends({}, model, { pending: model.pending + 1 }) : action.type === msg.ASYNC_END ? { message: action.data, pending: model.pending - 1 } : model;
 }
 
 exports['default'] = { view: view, update: update, actions: { INIT: INIT } };
@@ -54,7 +54,7 @@ Object.defineProperty(exports, '__esModule', {
 //{ pending, response, handler }
 
 var ASYNC_START = Symbol('ASYNC START');
-var ASYNC_FIN = Symbol('ASYNC FIN');
+var ASYNC_END = Symbol('ASYNC FIN');
 
 function asyncMessage() {
 
@@ -63,7 +63,7 @@ function asyncMessage() {
   function start(handler, request) {
     currentHandler = handler;
     request(function (resp) {
-      currentHandler({ type: ASYNC_FIN, data: resp });
+      currentHandler({ type: ASYNC_END, data: resp });
     });
     currentHandler({ type: ASYNC_START });
   }
@@ -72,7 +72,7 @@ function asyncMessage() {
     update: currentHandler = handler;
   };
 
-  return { start: start, hook: hook, ASYNC_START: ASYNC_START, ASYNC_FIN: ASYNC_FIN };
+  return { start: start, hook: hook, ASYNC_START: ASYNC_START, ASYNC_END: ASYNC_END };
 }
 
 exports['default'] = asyncMessage;
