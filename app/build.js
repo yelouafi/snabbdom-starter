@@ -13,7 +13,6 @@ var _snabbdomH2 = _interopRequireDefault(_snabbdomH);
 
 var INC = Symbol('inc');
 var DEC = Symbol('dec');
-var INIT = Symbol('init');
 
 // model : Number
 function view(count, handler) {
@@ -24,11 +23,15 @@ function view(count, handler) {
   }, '-'), (0, _snabbdomH2['default'])('div', 'Count : ' + count)]);
 }
 
-function update(count, action) {
-  return action.type === INC ? count + 1 : action.type === DEC ? count - 1 : action.type === INIT ? action.data : count;
+function init() {
+  return 0;
 }
 
-exports['default'] = { view: view, update: update, actions: { INC: INC, DEC: DEC, INIT: INIT } };
+function update(count, action) {
+  return action.type === INC ? count + 1 : action.type === DEC ? count - 1 : count;
+}
+
+exports['default'] = { view: view, init: init, update: update, actions: { INC: INC, DEC: DEC } };
 module.exports = exports['default'];
 
 },{"snabbdom/h":4}],2:[function(require,module,exports){
@@ -52,16 +55,18 @@ var _counter = require('./counter');
 
 var _counter2 = _interopRequireDefault(_counter);
 
+/*
+  model : {
+    counters: [{id: Number, counter: counter.model}],
+    nextID  : Number
+  }
+*/
+
 var ADD = Symbol('add');
 var UPDATE = Symbol('update counter');
 var REMOVE = Symbol('remove');
 var RESET = Symbol('reset');
 
-/*  model : {
-      counters: [{id: Number, counter: counter.model}],
-      nextID  : Number
-    }
-*/
 function view(model, handler) {
   return (0, _snabbdomH2['default'])('div', [(0, _snabbdomH2['default'])('button', {
     on: { click: handler.bind(null, { type: ADD }) }
@@ -82,10 +87,12 @@ function counterItemView(item, handler) {
   }), (0, _snabbdomH2['default'])('hr')]);
 }
 
-var resetAction = { type: _counter2['default'].actions.INIT, data: 0 };
+function init() {
+  return { nextID: 1, counters: [] };
+}
 
 function addCounter(model) {
-  var newCounter = { id: model.nextID, counter: _counter2['default'].update(null, resetAction) };
+  var newCounter = { id: model.nextID, counter: _counter2['default'].init() };
   return {
     counters: [].concat(_toConsumableArray(model.counters), [newCounter]),
     nextID: model.nextID + 1
@@ -97,7 +104,7 @@ function resetCounters(model) {
   return _extends({}, model, {
     counters: model.counters.map(function (item) {
       return _extends({}, item, {
-        counter: _counter2['default'].update(item.counter, resetAction)
+        counter: _counter2['default'].init()
       });
     })
   });
@@ -126,7 +133,7 @@ function update(model, action) {
   return action.type === ADD ? addCounter(model) : action.type === RESET ? resetCounters(model) : action.type === REMOVE ? removeCounter(model, action.id) : action.type === UPDATE ? updateCounter(model, action.id, action.data) : model;
 }
 
-exports['default'] = { view: view, update: update, actions: { ADD: ADD, RESET: RESET, REMOVE: REMOVE, UPDATE: UPDATE } };
+exports['default'] = { view: view, init: init, update: update, actions: { ADD: ADD, RESET: RESET, REMOVE: REMOVE, UPDATE: UPDATE } };
 module.exports = exports['default'];
 
 },{"./counter":1,"snabbdom/h":4}],3:[function(require,module,exports){
@@ -158,7 +165,7 @@ function main(initState, oldVnode, _ref) {
   patch(oldVnode, newVnode);
 }
 
-main({ nextID: 1, counters: [] }, // the initial state
+main(_counterList2['default'].init(), // the initial state
 document.getElementById('placeholder'), _counterList2['default']);
 // attaches event listeners
 

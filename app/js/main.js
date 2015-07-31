@@ -22,7 +22,7 @@ function main(initState, oldVnode, {view, update}) {
 }
 
 main(
-  { nextID: 1, counters: [] }, // the initial state 
+ counterList.init(), // the initial state 
   document.getElementById('placeholder'), 
   counterList
 );

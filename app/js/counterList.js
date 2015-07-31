@@ -39,10 +39,12 @@ function counterItemView(item, handler) {
   ]);
 }
 
-const resetAction = {type: counter.actions.INIT, data: 0};
+function init() {
+  return  { nextID: 1, counters: [] };
+}
 
 function addCounter(model) {
-  const newCounter = {id: model.nextID, counter: counter.update(null, resetAction) };
+  const newCounter = {id: model.nextID, counter: counter.init() };
   return {
     counters  : [...model.counters, newCounter],
     nextID    : model.nextID + 1
@@ -53,7 +55,7 @@ function resetCounters(model) {
   
   return {...model,
     counters  : model.counters.map(item => ({...item, 
-      counter: counter.update(item.counter, resetAction)
+      counter: counter.init()
     }))
   };
 }
@@ -86,4 +88,4 @@ function update(model, action) {
         : model;
 }
 
-export default { view, update, actions : { ADD, RESET, REMOVE, UPDATE } }
+export default { view, init, update, actions : { ADD, RESET, REMOVE, UPDATE } }

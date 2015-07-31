@@ -1,16 +1,16 @@
 import test from 'tape';
-import { update, actions } from '../app/js/counterList';
+import { init, update, actions } from '../app/js/counterList';
 import { actions as counterActions } from '../app/js/counter';
 import { action } from './helpers';
 
 
 test('counter update function', (assert) => {
     
-  var model = {nextID: 1, counters: []};
+  var model = init();
+  assert.deepEqual(model, {nextID: 1, counters: []});
   
   const incCounter = action(counterActions.INC);
   const decCounter = action(counterActions.DEC);
-  const reset = action(counterActions.INIT, 0);
   
   
   model = update(model, action(actions.ADD));
