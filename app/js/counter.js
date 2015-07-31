@@ -4,7 +4,6 @@ import h from 'snabbdom/h';
 
 const INC     = Symbol('inc');
 const DEC     = Symbol('dec');
-const INIT   = Symbol('init');
 
 
 // model : Number
@@ -20,12 +19,16 @@ function view(count, handler) {
   ]); 
 }
 
+// Number -> counter.model
+function init(number) {
+  return number;
+}
+
 
 function update(count, action) {
   return  action.type === INC    ? count + 1
         : action.type === DEC    ? count - 1
-        : action.type === INIT  ? action.data
         : count;
 }
 
-export default { view, update, actions : { INC, DEC, INIT } }
+export default { view, init, update, actions : { INC, DEC } }

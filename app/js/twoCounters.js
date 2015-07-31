@@ -21,13 +21,11 @@ function view(model, handler) {
   ]); 
 }
 
-const resetAction = {type: counter.actions.INIT, data: 0};
-
 function update(model, action) {
   return  action.type === RESET     ?
             { 
-              first : counter.update(model.first, resetAction),
-              second: counter.update(model.second, resetAction)
+              first : counter.init(0),
+              second: counter.init(0)
             }
             
         : action.type === UPDATE_FIRST   ?

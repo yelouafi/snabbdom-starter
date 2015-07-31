@@ -10,7 +10,6 @@ test('counter update function', (assert) => {
   
   const incCounter = action(counterActions.INC);
   const decCounter = action(counterActions.DEC);
-  const reset = action(counterActions.INIT, 0);
   
   model = update(model, action(actions.UPDATE_FIRST, incCounter));
   model = update(model, action(actions.UPDATE_SECOND, decCounter));
