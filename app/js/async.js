@@ -7,7 +7,7 @@ const ASYNC_START = Symbol('ASYNC START');
 const ASYNC_END   = Symbol('ASYNC ASYNC');
 
 var currentHandler;
-function getAsyncMsg(handler) {
+function getAsyncMsg() {
   currentHandler({type: ASYNC_START});
   setTimeout(() => {
     currentHandler({ type: ASYNC_END, data: 'Hello async'});
