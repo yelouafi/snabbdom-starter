@@ -5,7 +5,9 @@ import asyncMessage from './asyncMessage';
 
 const INIT = Symbol('INIT');
 
-const msg = asyncMessage();
+const msg = asyncMessage(cb => 
+  setTimeout(() => cb('Hello async'), 2000)
+);
 
 // model : { message: String, pending: Number }
 function view(model, handler) { 
@@ -13,7 +15,7 @@ function view(model, handler) {
   return h('div', [
     h('button', {
       hook : msg.hook(handler), 
-      on   : { click: () => msg.start(handler, cb => setTimeout(() => cb('Hello async'), 2000)) }
+      on   : { click: () => msg.start(handler) }
     }, 'Get Async Message'),
     
     h('span', {

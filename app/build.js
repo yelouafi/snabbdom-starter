@@ -19,7 +19,11 @@ var _asyncMessage2 = _interopRequireDefault(_asyncMessage);
 
 var INIT = Symbol('INIT');
 
-var msg = (0, _asyncMessage2['default'])();
+var msg = (0, _asyncMessage2['default'])(function (cb) {
+  return setTimeout(function () {
+    return cb('Hello async');
+  }, 2000);
+});
 
 // model : { message: String, pending: Number }
 function view(model, handler) {
@@ -27,11 +31,7 @@ function view(model, handler) {
   return (0, _snabbdomH2['default'])('div', [(0, _snabbdomH2['default'])('button', {
     hook: msg.hook(handler),
     on: { click: function click() {
-        return msg.start(handler, function (cb) {
-          return setTimeout(function () {
-            return cb('Hello async');
-          }, 2000);
-        });
+        return msg.start(handler);
       } }
   }, 'Get Async Message'), (0, _snabbdomH2['default'])('span', {
     style: { display: model.pending ? 'inline' : 'none' }
@@ -56,11 +56,11 @@ Object.defineProperty(exports, '__esModule', {
 var ASYNC_START = Symbol('ASYNC START');
 var ASYNC_END = Symbol('ASYNC FIN');
 
-function asyncMessage() {
+function asyncMessage(request) {
 
   var currentHandler;
 
-  function start(handler, request) {
+  function start(handler) {
     currentHandler = handler;
     request(function (resp) {
       currentHandler({ type: ASYNC_END, data: resp });
